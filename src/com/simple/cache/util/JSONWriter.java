@@ -85,10 +85,13 @@ public class JSONWriter {
 
 	private static String bean(Object object) {
 		try {
+			if (object.getClass().getName().startsWith("javax.servlet")) {
+				return "{}";
+			}
 			StringBuilder buf = new StringBuilder();
 			List<BeanEntity> list = PropertUtil.getBeanFields(object);
 			if (StringUtil.isNullOrEmpty(list)) {
-				return "";
+				return "{}";
 			}
 			buf.append(add("{"));
 			BeanEntity entity = null;
@@ -124,7 +127,6 @@ public class JSONWriter {
 		} catch (Exception e) {
 			return "";
 		}
-
 	}
 
 	private static StringBuilder removeLastStr(StringBuilder buf, char value) {

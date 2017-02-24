@@ -59,30 +59,30 @@ public class CacheHandle {
 				return pjp.proceed();
 			}
 			// 获取注解
-			CacheWrite handle = method.getAnnotation(CacheWrite.class);
-			if (handle == null) {
+			CacheWrite write = method.getAnnotation(CacheWrite.class);
+			if (write == null) {
 				return pjp.proceed();
 			}
 			// 封装缓存KEY
-			Object[] args = pjp.getArgs();
-			String key = handle.key();
+			Object[] paras = pjp.getArgs();
+			String key = write.key();
 			try {
 				if (StringUtil.isNullOrEmpty(key)) {
 					key = AspectUtil.getMethodCacheKey(method);
 				}
-				if (StringUtil.isNullOrEmpty(handle.fields())) {
+				if (StringUtil.isNullOrEmpty(write.fields())) {
 					key += "_";
-					key += AspectUtil.getBeanKey(args);
+					key += AspectUtil.getBeanKey(paras);
 				}
-				if (!StringUtil.isNullOrEmpty(handle.fields())) {
-					key = AspectUtil.getFieldKey(method, args, key,
-							handle.fields());
+				if (!StringUtil.isNullOrEmpty(write.fields())) {
+					key = AspectUtil.getFieldKey(method, paras, key,
+							write.fields());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			Integer cacheTimer = ((handle.validTime() == 0) ? 24 * 3600
-					: handle.validTime());
+			Integer cacheTimer = ((write.validTime() == 0) ? 24 * 3600
+					: write.validTime());
 			try {
 				Object result = cacheFace.getCache(key);
 				logger.debug("获取缓存:"+key+";缓存内容:"+result);
@@ -125,6 +125,10 @@ public class CacheHandle {
 					String key = wipe.key();
 					if (StringUtil.isNullOrEmpty(wipe.key())) {
 						key = (AspectUtil.getMethodCacheKey(method));
+					}
+					if (StringUtil.isNullOrEmpty(wipe.fields())) {
+						key += "_";
+						key += AspectUtil.getBeanKey(paras);
 					}
 					if (!StringUtil.isNullOrEmpty(wipe.fields())) {
 						key = AspectUtil.getFieldKey(method, paras, key,
